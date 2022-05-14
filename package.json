@@ -2,7 +2,7 @@
   "name": "wetwork-backend",
   "version": "1.0.0",
   "description": "The backend for a simple chat app.",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "start": "node .",
     "build": "rimraf dist && tsc",
@@ -18,8 +18,6 @@
     "typescript": "^4.6.4"
   },
   "dependencies": {
-    "fastify": "^3.29.0",
-    "fastify-socket.io": "^3.0.0",
     "socket.io": "^4.5.0"
   }
 }

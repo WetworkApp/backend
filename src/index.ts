@@ -1,29 +1,24 @@
-import Fastify, { FastifyInstance } from "fastify";
-import fastifyIO from "fastify-socket.io";
-import { join } from "path";
-import { readFile } from "fs/promises";
+import { Server } from "socket.io";
+import type { Socket } from "socket.io";
+import type { Message, ServerToClientEvents, ClientToServerEvents } from "../defs";
 
-const fastify: FastifyInstance = Fastify({
-    logger: true,
-});
-fastify.register(fastifyIO);
-
-fastify.get("/", async (req, reply) => {
-    const data = await readFile(join(__dirname, "..", "test.html"));
-    reply.header("content-type", "text/html; charset=utf-8");
-    reply.send(data);
+const server = new Server<ClientToServerEvents, ServerToClientEvents>(4000, {
+    cors: {
+        origin: "*"
+    }
 });
 
-fastify.ready((err) => {
-    if (err) throw err;
-
-    fastify.io.on("connection", (socket) => {
-        console.info("Socket connected!", socket.id);
-        socket.on("chat message", (msg) => {
-            console.log(`${socket.id} sent: ${msg}`);
-            fastify.io.emit("chat message", `${socket.id}: ${msg}`)
+server.on("connection", (socket: Socket) => {
+    console.log(`${socket.id} connected.`);
+    socket.on("messageCreate", (msg: Message) => {
+        if (!msg.author) {
+            return false;
+        }
+        console.log(`${msg.author} sent: ${msg.content}`);
+        server.emit("messageCreate", <Message> {
+            author: msg.author,
+            content: msg.content,
+            timestamp: Date.now()
         });
     });
 });
-
-fastify.listen(4000);
