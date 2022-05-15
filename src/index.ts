@@ -10,6 +10,9 @@ const server = new Server<ClientToServerEvents, ServerToClientEvents>(4000, {
 
 server.on("connection", (socket: Socket) => {
     console.log(`${socket.id} connected.`);
+    socket.on("disconnect", () => {
+        console.log(`${socket.id} disconnected.`);
+    })
     socket.on("messageCreate", (msg: Message) => {
         if (!msg.author) {
             return false;
